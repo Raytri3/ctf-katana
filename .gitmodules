@@ -1,0 +1,3 @@
+[submodule "PayloadsAllTheThings"]
+	path = PayloadsAllTheThings
+	url = https://github.com/swisskyrepo/PayloadsAllTheThings.git
