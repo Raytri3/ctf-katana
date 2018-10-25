@@ -1,3 +1,11 @@
+Building off of the shoulders of giants as the saying goes - I am putting together a repository for everything I find useful for CTFs
+
+Credit is not mine but those of the original authors.
+
+I started with CTF-KATANA and built from there..
+
+> Raymond October, 2018
+
 CTF-Katana
 ===============
 
