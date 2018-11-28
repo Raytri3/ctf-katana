@@ -50,7 +50,7 @@ Various tools that I have used on CTFs and because I am lazy :)
 
 * Stringchecker
 
-	Bash script to do a "strings" on all files looking for flags and tries to carve files w/in files if they exist.
+	Bash script to do a "strings" on all files looking for flags and tries to carve files w/in files if they exist. Uses MagicNumbers (mnums.txt) for file carving.
 
 * Whitespace
 
