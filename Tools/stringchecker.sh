@@ -18,7 +18,7 @@ do
 	do
 		if /usr/bin/xxd -p $i| grep $m >/dev/null;then
 			echo "Possible embedded file with header" $m "in" $i "running foremost to carve it"
-			foremost -T -i $i -o carved
+			foremost -T -i $i -o carved_$i
 	fi
 	done
 	
